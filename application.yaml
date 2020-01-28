@@ -1,0 +1,15 @@
+  server:
+    port: 9000
+
+  spring:
+    servlet:
+      multipart:
+        max-file-size: 500KB
+        max-request-size: 500KB
+    data:
+      mongodb:
+        host: ds029837.mlab.com
+        port: 29837
+        database: lazy_load_dev
+        username: user
+        password: tnsPass0

@@ -1,0 +1,13 @@
+  server:
+    port: 9000
+
+  spring:
+    servlet:
+      multipart:
+        max-file-size: 500KB
+        max-request-size: 500KB
+    data:
+      mongodb:
+        host: localhost
+        port: 27017
+        database: lazy_load

@@ -1,0 +1,72 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.1.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+allprojects {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+	apply plugin: 'io.spring.dependency-management'
+
+	group = 'com.techansolve.lazyload'
+	version = '1.0'
+	sourceCompatibility = 1.8
+
+	repositories {
+		mavenCentral()
+	}
+
+    dependencies {
+        testCompile ("org.springframework.boot:spring-boot-starter-test:${springBootVersion}"){
+            exclude module: 'spring-boot-starter-logging'
+        }
+        testCompile ("org.springframework.boot:spring-boot-test-autoconfigure:${springBootVersion}"){
+            exclude module: 'spring-boot-starter-logging'
+        }
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+ext.mainClass = 'com.techandsolve.lazyload.LazyLoadApplication'
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
+	compile ('org.apache.commons:commons-lang3')
+
+	compileOnly('org.projectlombok:lombok')
+}
+
+task pathingJar(type: Jar) {
+	dependsOn configurations.runtime
+	appendix = 'pathing'
+
+	doFirst {
+		manifest {
+			attributes "Class-Path": configurations.runtime.files.collect {
+				it.toURI().toURL().toString().replaceFirst("file:/", '/')
+			}.join(' ')
+			attributes 'Main-Class': 'com.techandsolve.lazyload.LazyLoadApplication'
+		}
+	}
+}
+
+jar{
+	archiveName = "${baseName}.${extension}"
+}
+
+
+bootRun {
+	dependsOn pathingJar
+	doFirst {
+		classpath = files("$buildDir/classes/java/main", "$buildDir/resources/main", pathingJar.archivePath)
+	}
+}
